@@ -1,5 +1,26 @@
 package templates
 
 templ Index() {
-	<div>Index</div>
+	@Layout() {
+		<h1>Endpoint Watcher</h1>
+		<form action="/watch" method="post">
+			<div class="grid gap-05" style="grid-template-columns: 4fr 1fr 1fr">
+				<input type="url" name="url" placeholder="https://example.com" required class="col-md-6"/>
+				<select name="expected_status" class="col-md-4">
+					<option value="200">200 OK</option>
+					<option value="201">201 Created</option>
+					<option value="204">204 No Content</option>
+					<option value="400">400 Bad Request</option>
+					<option value="401">401 Unauthorized</option>
+					<option value="403">403 Forbidden</option>
+					<option value="404">404 Not Found</option>
+					<option value="500">500 Internal Server Error</option>
+					<option value="502">502 Bad Gateway</option>
+					<option value="503">503 Service Unavailable</option>
+					<option value="504">504 Gateway Timeout</option>
+				</select>
+				<button type="submit" class="col-md-2">Watch</button>
+			</div>
+		</form>
+	}
 }

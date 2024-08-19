@@ -1,2 +1,3 @@
 *.sqlite
 *_templ.go
+tmp/

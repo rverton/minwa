@@ -1,0 +1,11 @@
+package templates
+
+templ Hello(name string) {
+	<div>Hello, { name }</div>
+}
+
+templ Greeting(person string) {
+	<div class="greeting">
+		@Hello(person)
+	</div>
+}

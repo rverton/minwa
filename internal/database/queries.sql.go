@@ -9,6 +9,26 @@ import (
 	"context"
 )
 
+const changes = `-- name: Changes :one
+select changes()
+`
+
+func (q *Queries) Changes(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, changes)
+	var changes int64
+	err := row.Scan(&changes)
+	return changes, err
+}
+
+const checksCleanup = `-- name: ChecksCleanup :exec
+delete from checks where created_at < (strftime('%s', 'now', ?))
+`
+
+func (q *Queries) ChecksCleanup(ctx context.Context, strftime interface{}) error {
+	_, err := q.db.ExecContext(ctx, checksCleanup, strftime)
+	return err
+}
+
 const checksCreate = `-- name: ChecksCreate :exec
 insert into checks (endpoint_id, status, response_time) values (?, ?, ?)
 `

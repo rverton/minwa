@@ -15,3 +15,9 @@ delete from endpoints where id = ?;
 
 -- name: ChecksDelete :exec
 delete from checks where endpoint_id = ?;
+
+-- name: ChecksCleanup :exec
+delete from checks where created_at < (strftime('%s', 'now', ?));
+
+-- name: Changes :one
+select changes();

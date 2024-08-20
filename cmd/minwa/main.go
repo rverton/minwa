@@ -9,6 +9,7 @@ import (
 	"minwa/internal/database"
 	"minwa/internal/web"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -25,13 +26,21 @@ func main() {
 	db, err := sql.Open("sqlite3", *dbName)
 	if err != nil {
 		slog.Error("unable to open sqlite db", "error", err)
+		os.Exit(-1)
+	}
+
+	if err := database.ConfigureSqlite(db); err != nil {
+		slog.Error("unable to open sqlite db", "error", err)
+		os.Exit(-1)
 	}
 
 	if _, err := db.ExecContext(ctx, database.Schema); err != nil {
 		slog.Error("unable to exec schema", "error", err)
+		os.Exit(-1)
 	}
 
-	go checker.ScheduleCheck(ctx, db, 30*time.Second)
+	go checker.ScheduleCheck(ctx, db, 1*time.Minute)
+	go database.ScheduleCleanup(ctx, db, "-1 days")
 
 	hs := web.NewHttpServer(db)
 

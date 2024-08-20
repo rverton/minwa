@@ -3,12 +3,13 @@ create table if not exists endpoints (
     url text not null,
     expected_status integer not null,
 
-    created_at integer not null default (strftime('%s', 'now')*1000)
+    created_at integer not null default (strftime('%s', 'now'))
 ) strict;
 
 create table if not exists checks (
     endpoint_id integer not null,
     status integer not null,
     response_time integer not null,
-    created_at integer not null default (strftime('%s', 'now')*1001)
+
+    created_at integer not null default (strftime('%s', 'now'))
 ) strict;

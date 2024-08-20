@@ -58,7 +58,10 @@ func ScheduleCheck(ctx context.Context, db *sql.DB, nc notify.Config, interval t
 			go func(endpoint database.Endpoint) {
 				defer wg.Done()
 
-				status, responseTime, _ := CheckEndpoint(endpoint.Url)
+				status, responseTime, err := CheckEndpoint(endpoint.Url)
+				if err != nil {
+					slog.Warn("http get err", "endpoint", endpoint.Url, "error", err)
+				}
 
 				// Lock the mutex before writing to the database
 				mu.Lock()

@@ -1,0 +1,6 @@
+# flyctl launch added from .gitignore
+**/*.sqlite*
+**/*_templ.go
+**/tmp
+**/.env
+fly.toml

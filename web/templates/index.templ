@@ -48,11 +48,11 @@ templ Index(endpoints []EndpointWithChecks) {
 				<button type="submit" class="col-md-2">Watch</button>
 			</div>
 		</form>
-		<div style="margin-top: 2em; font-family: var(--font-monospace)">
+		<div style="margin-top: 2em; font-family: var(--font-monospace); font-size: 0.8rem;">
 			<ul style="padding-inline-start: 0">
 				for _, e := range endpoints {
 					<li style="display: flex; gap: 2px; align-items: center; margin-bottom:4px">
-						<div style="flex-basis: 350px">
+						<div style="flex-basis: 400px">
 							{ e.Endpoint.Url } ({ fmt.Sprint(e.Endpoint.ExpectedStatus) })
 						</div>
 						<div style="flex-grow: 1; display: flex; gap: 3px; justify-content: right;">

@@ -14,4 +14,4 @@ FROM debian:bookworm
 RUN apt update && apt install -y ca-certificates
 COPY --from=builder /usr/src/app/web/static /web/static 
 COPY --from=builder /run-app /usr/local/bin/
-CMD ["run-app"]
+CMD ["run-app", "-dbname","/data/db.sqlite"]

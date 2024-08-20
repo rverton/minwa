@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"minwa/internal/checker"
 	"minwa/internal/database"
+	"minwa/internal/notify"
 	"minwa/internal/web"
 	"net/http"
 	"os"
@@ -39,7 +40,17 @@ func main() {
 		os.Exit(-1)
 	}
 
-	go checker.ScheduleCheck(ctx, db, 1*time.Minute)
+	go checker.ScheduleCheck(
+		ctx,
+		db,
+		notify.Config{
+			From:  os.Getenv("MAIL_FROM"),
+			To:    os.Getenv("MAIL_TO"),
+			Token: os.Getenv("POSTMARK_TOKEN"),
+		},
+		1*time.Minute,
+	)
+
 	go database.ScheduleCleanup(ctx, db, "-1 days")
 
 	hs := web.NewHttpServer(db)

@@ -7,6 +7,9 @@ insert into endpoints (url, expected_status) values (?, ?);
 -- name: ChecksForEndpoint :many
 select * from checks where endpoint_id = ? order by created_at desc limit ?;
 
+-- name: ChecksForEndpointLast :one
+select * from checks where endpoint_id = ? order by created_at desc limit 1;
+
 -- name: ChecksCreate :exec
 insert into checks (endpoint_id, status, response_time) values (?, ?, ?);
 

@@ -1,3 +1,4 @@
 *.sqlite*
 *_templ.go
 tmp/
+.env

@@ -90,6 +90,22 @@ func (q *Queries) ChecksForEndpoint(ctx context.Context, arg ChecksForEndpointPa
 	return items, nil
 }
 
+const checksForEndpointLast = `-- name: ChecksForEndpointLast :one
+select endpoint_id, status, response_time, created_at from checks where endpoint_id = ? order by created_at desc limit 1
+`
+
+func (q *Queries) ChecksForEndpointLast(ctx context.Context, endpointID int64) (Check, error) {
+	row := q.db.QueryRowContext(ctx, checksForEndpointLast, endpointID)
+	var i Check
+	err := row.Scan(
+		&i.EndpointID,
+		&i.Status,
+		&i.ResponseTime,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const endpointsCreate = `-- name: EndpointsCreate :exec
 insert into endpoints (url, expected_status) values (?, ?)
 `

@@ -3,12 +3,14 @@ package checker
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"sync"
 	"time"
 
 	"minwa/internal/database"
+	"minwa/internal/notify"
 )
 
 const timeout = 5 * time.Second
@@ -35,7 +37,7 @@ func CheckEndpoint(url string) (int, time.Duration, error) {
 }
 
 // ScheduleCheck runs CheckEndpoint every interval and persists the result in the database
-func ScheduleCheck(ctx context.Context, db *sql.DB, interval time.Duration) {
+func ScheduleCheck(ctx context.Context, db *sql.DB, nc notify.Config, interval time.Duration) {
 	queries := database.New(db)
 	var mu sync.Mutex // Create a mutex for synchronization
 
@@ -56,15 +58,28 @@ func ScheduleCheck(ctx context.Context, db *sql.DB, interval time.Duration) {
 			go func(endpoint database.Endpoint) {
 				defer wg.Done()
 
-				status, responseTime, err := CheckEndpoint(endpoint.Url)
-				if err != nil {
-					slog.Error("unable to check endpoint", "error", err)
-					return
-				}
+				status, responseTime, _ := CheckEndpoint(endpoint.Url)
 
 				// Lock the mutex before writing to the database
 				mu.Lock()
 				defer mu.Unlock()
+
+				// notify if status changed
+				if last, err := queries.ChecksForEndpointLast(ctx, endpoint.ID); err == nil {
+					if last.Status != int64(status) {
+						msg := fmt.Sprintf("Status: %v - %v -> %v", endpoint.Url, last.Status, status)
+						if err := notify.NotifyMail(
+							nc,
+							msg,
+							msg,
+						); err != nil {
+							slog.Error("unable to send notification", "error", err)
+						} else {
+							slog.Info("sent notification for status change", "endpoint", endpoint.Url)
+						}
+
+					}
+				}
 
 				if err := queries.ChecksCreate(context.Background(), database.ChecksCreateParams{
 					EndpointID:   endpoint.ID,

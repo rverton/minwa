@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"flag"
 	"log/slog"
+	"minwa/internal/checker"
 	"minwa/internal/database"
 	"minwa/internal/web"
 	"net/http"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -28,6 +30,8 @@ func main() {
 	if _, err := db.ExecContext(ctx, database.Schema); err != nil {
 		slog.Error("unable to exec schema", "error", err)
 	}
+
+	go checker.ScheduleCheck(ctx, db, 30*time.Second)
 
 	hs := web.NewHttpServer(db)
 

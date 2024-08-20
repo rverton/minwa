@@ -9,8 +9,92 @@ import (
 	"context"
 )
 
+const checksCreate = `-- name: ChecksCreate :exec
+insert into checks (endpoint_id, status, response_time) values (?, ?, ?)
+`
+
+type ChecksCreateParams struct {
+	EndpointID   int64
+	Status       int64
+	ResponseTime int64
+}
+
+func (q *Queries) ChecksCreate(ctx context.Context, arg ChecksCreateParams) error {
+	_, err := q.db.ExecContext(ctx, checksCreate, arg.EndpointID, arg.Status, arg.ResponseTime)
+	return err
+}
+
+const checksDelete = `-- name: ChecksDelete :exec
+delete from checks where endpoint_id = ?
+`
+
+func (q *Queries) ChecksDelete(ctx context.Context, endpointID int64) error {
+	_, err := q.db.ExecContext(ctx, checksDelete, endpointID)
+	return err
+}
+
+const checksForEndpoint = `-- name: ChecksForEndpoint :many
+select endpoint_id, status, response_time, created_at from checks where endpoint_id = ? order by created_at desc limit ?
+`
+
+type ChecksForEndpointParams struct {
+	EndpointID int64
+	Limit      int64
+}
+
+func (q *Queries) ChecksForEndpoint(ctx context.Context, arg ChecksForEndpointParams) ([]Check, error) {
+	rows, err := q.db.QueryContext(ctx, checksForEndpoint, arg.EndpointID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Check
+	for rows.Next() {
+		var i Check
+		if err := rows.Scan(
+			&i.EndpointID,
+			&i.Status,
+			&i.ResponseTime,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const endpointsCreate = `-- name: EndpointsCreate :exec
+insert into endpoints (url, expected_status) values (?, ?)
+`
+
+type EndpointsCreateParams struct {
+	Url            string
+	ExpectedStatus int64
+}
+
+func (q *Queries) EndpointsCreate(ctx context.Context, arg EndpointsCreateParams) error {
+	_, err := q.db.ExecContext(ctx, endpointsCreate, arg.Url, arg.ExpectedStatus)
+	return err
+}
+
+const endpointsDelete = `-- name: EndpointsDelete :exec
+delete from endpoints where id = ?
+`
+
+func (q *Queries) EndpointsDelete(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, endpointsDelete, id)
+	return err
+}
+
 const endpointsList = `-- name: EndpointsList :many
-select url, expected_status from endpoints
+select id, url, expected_status, created_at from endpoints
 `
 
 func (q *Queries) EndpointsList(ctx context.Context) ([]Endpoint, error) {
@@ -22,7 +106,12 @@ func (q *Queries) EndpointsList(ctx context.Context) ([]Endpoint, error) {
 	var items []Endpoint
 	for rows.Next() {
 		var i Endpoint
-		if err := rows.Scan(&i.Url, &i.ExpectedStatus); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Url,
+			&i.ExpectedStatus,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

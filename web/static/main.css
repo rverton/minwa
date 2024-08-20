@@ -74,3 +74,17 @@ input {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(16em, 1fr));
 }
+
+.status-green {
+    width: 5px;
+    height: 24px;
+    background-color: var(--color-green);
+    border-radius: 3px;
+}
+
+.status-gray {
+    width: 5px;
+    height: 24px;
+    background-color: var(--color-gray);
+    border-radius: 2px;
+}

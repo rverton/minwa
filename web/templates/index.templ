@@ -1,11 +1,37 @@
 package templates
 
-templ Index() {
+import "minwa/internal/database"
+import "slices"
+import "fmt"
+
+type EndpointWithChecks struct {
+	Endpoint database.Endpoint
+	Checks   []database.Check
+}
+
+func ChecksAverage(checks []database.Check) int64 {
+	if len(checks) == 0 {
+		return 0
+	}
+	var sum int64
+	for _, check := range checks {
+		sum += check.ResponseTime
+	}
+	return sum / int64(len(checks))
+}
+
+templ Index(endpoints []EndpointWithChecks) {
 	@Layout() {
 		<h1>Endpoint Watcher</h1>
-		<form action="/watch" method="post">
-			<div class="grid gap-05" style="grid-template-columns: 4fr 1fr 1fr">
-				<input type="url" name="url" placeholder="https://example.com" required class="col-md-6"/>
+		<form action="/" method="post">
+			<div class="" style="display: flex; gap: 4px">
+				<input
+					type="url"
+					name="url"
+					placeholder="https://example.com"
+					style="flex-grow: 1"
+					required
+				/>
 				<select name="expected_status" class="col-md-4">
 					<option value="200">200 OK</option>
 					<option value="201">201 Created</option>
@@ -22,5 +48,33 @@ templ Index() {
 				<button type="submit" class="col-md-2">Watch</button>
 			</div>
 		</form>
+		<div style="margin-top: 2em; font-family: var(--font-monospace)">
+			<ul style="padding-inline-start: 0">
+				for _, e := range endpoints {
+					<li style="display: flex; gap: 2px; align-items: center; margin-bottom:4px">
+						<div style="flex-basis: 350px">
+							{ e.Endpoint.Url } ({ fmt.Sprint(e.Endpoint.ExpectedStatus) })
+						</div>
+						<div style="flex-grow: 1; display: flex; gap: 3px; justify-content: right;">
+							for _, check := range slices.Backward(e.Checks) {
+								if check.Status == e.Endpoint.ExpectedStatus {
+									<div class="status-green"></div>
+								} else {
+									<div class="status-gray"></div>
+								}
+							}
+						</div>
+						<div style="flex-basis: 80px; text-align: right">
+							{ fmt.Sprintf("%v", ChecksAverage(e.Checks)) }ms
+						</div>
+						<div style="flex-basis: 20px; text-align: right">
+							<form method="post" action={ templ.SafeURL(fmt.Sprintf("/%v/delete", e.Endpoint.ID)) }>
+								<button type="submit">&times;</button>
+							</form>
+						</div>
+					</li>
+				}
+			</ul>
+		</div>
 	}
 }

@@ -4,11 +4,18 @@
 
 package database
 
-import (
-	"database/sql"
-)
+import ()
+
+type Check struct {
+	EndpointID   int64
+	Status       int64
+	ResponseTime int64
+	CreatedAt    int64
+}
 
 type Endpoint struct {
-	Url            sql.NullString
-	ExpectedStatus sql.NullInt64
+	ID             int64
+	Url            string
+	ExpectedStatus int64
+	CreatedAt      int64
 }

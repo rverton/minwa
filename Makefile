@@ -1,5 +1,5 @@
 generate/sqlc:
-	cd database && sqlc generate
+	cd internal/database && sqlc generate
 
 generate/templ:
 	templ generate

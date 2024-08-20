@@ -16,7 +16,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var port = flag.String("port", "8080", "port")
 var dbName = flag.String("dbname", "db.sqlite", "database name")
 
 func main() {
@@ -53,8 +52,13 @@ func main() {
 
 	go database.ScheduleCleanup(ctx, db, "-1 days")
 
-	hs := web.NewHttpServer(db)
+	hs := web.NewHttpServer(db, os.Getenv("PASS"))
 
-	slog.Info("starting server", "url", "http://localhost:"+*port)
-	http.ListenAndServe(":"+*port, hs.Server)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	slog.Info("starting server", "url", "http://localhost:"+port)
+	http.ListenAndServe(":"+port, hs.Server)
 }

@@ -19,14 +19,16 @@ type HTTPServer struct {
 	Logger *slog.Logger
 
 	Queries database.Queries
+	Pass    string
 }
 
 // NewHttpServer creates a new http server and sets up logging, routes and static files
-func NewHttpServer(db *sql.DB) *HTTPServer {
+func NewHttpServer(db *sql.DB, pass string) *HTTPServer {
 	hs := &HTTPServer{
 		Server:  echo.New(),
 		Queries: *database.New(db),
 		Logger:  slog.Default(),
+		Pass:    pass,
 	}
 
 	hs.Server.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -59,6 +61,14 @@ func NewHttpServer(db *sql.DB) *HTTPServer {
 
 	// static files
 	hs.Server.Static("/static", "web/static")
+
+	// setup http basic auth
+	hs.Server.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		if username == "user" && password == hs.Pass {
+			return true, nil
+		}
+		return false, nil
+	}))
 
 	return hs
 }

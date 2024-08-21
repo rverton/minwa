@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const checks = 30
+const checks = 60
 
 func (hs *HTTPServer) routes() {
 	hs.Server.GET("/", hs.indexHandler)

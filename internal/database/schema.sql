@@ -11,5 +11,9 @@ create table if not exists checks (
     status integer not null,
     response_time integer not null,
 
-    created_at integer not null default (strftime('%s', 'now'))
+    created_at integer not null default (strftime('%s', 'now')),
+
+    foreign key(endpoint_id) references endpoints(id)
 ) strict;
+
+create index if not exists checks_endpoints_idx on checks (endpoint_id, created_at);

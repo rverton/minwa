@@ -69,7 +69,10 @@ templ Index(endpoints []EndpointWithChecks) {
 						</div>
 						<div style="flex-basis: 20px; text-align: right">
 							<form method="post" action={ templ.SafeURL(fmt.Sprintf("/%v/delete", e.Endpoint.ID)) }>
-								<button type="submit">&times;</button>
+								<button
+									style="background: 0; border: 0"
+									type="submit"
+								>&times;</button>
 							</form>
 						</div>
 					</li>

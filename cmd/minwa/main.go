@@ -50,7 +50,7 @@ func main() {
 		1*time.Minute,
 	)
 
-	go database.ScheduleCleanup(ctx, db, "-1 days")
+	go database.ScheduleCleanup(ctx, db, "-7 days")
 
 	hs := web.NewHttpServer(db, os.Getenv("PASS"))
 

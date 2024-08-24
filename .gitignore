@@ -1,4 +1,6 @@
 *.sqlite*
 *_templ.go
+*_templ.txt
 tmp/
 .env
+

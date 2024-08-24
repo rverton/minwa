@@ -26,6 +26,8 @@ make run
 
 Deployment:
 
+Dont forget to adjust `fly.toml`.
+
 ```
 fly secrets set POSTMARK_TOKEN=xxx
 fly secrets set PASS=http-basic-auth-pass

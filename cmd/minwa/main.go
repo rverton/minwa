@@ -17,6 +17,7 @@ import (
 )
 
 var dbName = flag.String("dbname", "db.sqlite", "database name")
+var dbCleanup = flag.String("cleanup", "-7 days", "how long to keep checks")
 
 func main() {
 	flag.Parse()
@@ -50,7 +51,7 @@ func main() {
 		1*time.Minute,
 	)
 
-	go database.ScheduleCleanup(ctx, db, "-7 days")
+	go database.ScheduleCleanup(ctx, db, *dbCleanup)
 
 	hs := web.NewHttpServer(db, os.Getenv("PASS"))
 
